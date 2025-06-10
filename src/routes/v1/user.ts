@@ -1,3 +1,5 @@
+import { deleteCurrentUser } from '@/controllers/v1/user/deleteCurrentUser';
+import { getAllUser } from '@/controllers/v1/user/getAllUser';
 import { getCurrentUser } from '@/controllers/v1/user/getCurrentUser';
 import { updateCurrentUser } from '@/controllers/v1/user/updateCurrentUser';
 import { authenticate } from '@/middlewares/authenticate';
@@ -5,7 +7,7 @@ import authorize from '@/middlewares/authorize';
 import validationError from '@/middlewares/validationError';
 import { User } from '@/models/user';
 import { Router } from 'express';
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 
 const router = Router();
 
@@ -15,6 +17,7 @@ router.get(
   authorize(['admin', 'user']),
   getCurrentUser,
 );
+
 router.put(
   '/current',
   authenticate,
@@ -73,6 +76,25 @@ router.put(
     .withMessage('URL must be less then 100 characters'),
   validationError,
   updateCurrentUser,
+);
+
+router.delete(
+  '/current',
+  authenticate,
+  authorize(['admin', 'user']),
+  deleteCurrentUser,
+);
+
+router.get(
+  '/all',
+  authenticate,
+  authorize(['admin']),
+  query('limit').optional().isInt({min:1,max:50})
+  .withMessage('Limit must be between 1 to 50'),
+  query('offset').optional().isInt({min:0})
+  .withMessage('Offset must be greater then 0'),
+  validationError,
+  getAllUser,
 );
 
 export default router;
