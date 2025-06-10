@@ -15,6 +15,7 @@ export interface IUser {
     instagram?: string;
     x?: string;
     github?: string;
+    linkedin?: string;
   };
 }
 
@@ -76,6 +77,10 @@ const userSchema = new Schema<IUser>(
         type: String,
         maxLength: [100, 'url must be less than 100 characters'],
       },
+      linkedin: {
+        type: String,
+        maxLength: [100, 'url must be less than 100 characters'],
+      },
     },
   },
   {
@@ -83,11 +88,10 @@ const userSchema = new Schema<IUser>(
   },
 );
 
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
 
-userSchema.pre('save',async function(next){
-  if(!this.isModified('password')) return next()
-
-  this.password = await bcrypt.hash(this.password, 10)
-})
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
 export const User = model<IUser>('User', userSchema);
