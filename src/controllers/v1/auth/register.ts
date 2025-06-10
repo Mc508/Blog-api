@@ -10,7 +10,13 @@ type UserData = Pick<IUser, 'email' | 'password' | 'role'>;
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   const { email, password, role } = req.body as UserData;
-  console.log(email, password, role);
+  if(role === "admin" && !config.WHITELIST_ADMINS_MAIL.includes(email)){
+      res.status(403).json({
+        code:"Authorization Error",
+        message:"You are not authorized to create admin account"
+      })
+      logger.warn("You are not authorized to create admin account")
+    throw new Error('ADMIN_EMAIL is not defined');}
   try {
     const username = getUsername();
 
@@ -40,7 +46,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: config.NODE_ENV === 'production',
-      sameSite: 'none',
+      sameSite: 'strict',
     });
 
     res.status(201).json({
