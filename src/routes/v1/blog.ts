@@ -2,6 +2,7 @@ import { createBlog } from '@/controllers/v1/blog/createBlog';
 import { getAllBlogs } from '@/controllers/v1/blog/getAllBlogs';
 import { getBlogBySlug } from '@/controllers/v1/blog/getBlogBySlug';
 import { getBlogsByUser } from '@/controllers/v1/blog/getBlogsByUser';
+import { updateBlog } from '@/controllers/v1/blog/updateBlog';
 import { authenticate } from '@/middlewares/authenticate';
 import authorize from '@/middlewares/authorize';
 import { uploadBlogBanner } from '@/middlewares/uploadBlogBanner';
@@ -37,7 +38,7 @@ router.post(
 router.get(
   '/',
   authenticate,
-  authorize(['admin','user']),
+  authorize(['admin', 'user']),
   query('limit')
     .optional()
     .isInt({ min: 1, max: 50 })
@@ -53,7 +54,7 @@ router.get(
 router.get(
   '/user/:userId',
   authenticate,
-  authorize(['admin','user']),
+  authorize(['admin', 'user']),
   param('userId').isMongoId().withMessage('Invalid user ID'),
   query('limit')
     .optional()
@@ -67,13 +68,33 @@ router.get(
   getBlogsByUser,
 );
 
-router.get("/:slug",
+router.get(
+  '/:slug',
   authenticate,
-  authorize(['admin','user']),
-  param('slug').notEmpty().withMessage("Slug is required"),
+  authorize(['admin', 'user']),
+  param('slug').notEmpty().withMessage('Slug is required'),
   validationError,
-  getBlogBySlug
-)
+  getBlogBySlug,
+);
 
+router.put(
+  '/:blogId',
+  authenticate,
+  authorize(['admin']),
+  param('blogId').isMongoId().withMessage('Invalid Blog Id'),
+  upload.single('bannerImage'),
+  body('title')
+    .optional()
+    .isLength({ max: 180 })
+    .withMessage('Title must be less then 180 characters'),
+  body('content'),
+  body('status')
+    .optional()
+    .isIn(['draft', 'published'])
+    .withMessage('Status must be one of the value, draft or published'),
+  validationError,
+  uploadBlogBanner('put'),
+  updateBlog,
+);
 
 export default router;
