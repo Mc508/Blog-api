@@ -6,15 +6,8 @@ import { logger } from '@/lib/winston';
 import { User } from '@/models/user';
 import { deleteBanner } from '@/lib/cloudinary';
 
-type BlogData = Partial<Pick<IBlog, 'title' | 'content' | 'banner' | 'status'>>;
-
-const window = new JSDOM('').window;
-const purify = DOMPurify(window);
-
-export const updateBlog = async (req: Request, res: Response) => {
+export const deleteBlog = async (req: Request, res: Response) => {
   try {
-    const { title, content, banner, status } = req.body as BlogData;
-
     const userId = req.userId;
     const blogId = req.params.blogId;
 
@@ -42,31 +35,19 @@ export const updateBlog = async (req: Request, res: Response) => {
       return;
     }
 
-    if (title) blog.title = title;
-    if (content) {
-      const cleanContent = purify.sanitize(content);
-      blog.content = cleanContent;
-    }
-    if (banner) {
-      await deleteBanner(blog.banner.publicId);
-      logger.info("Blog banner deleted")
-      blog.banner = banner;
-    }
-    if (status) blog.status = status;
+    await deleteBanner(blog.banner.publicId);
 
-    await blog.save();
+    await Blog.deleteOne({_id: blogId });
 
-    logger.info('Blog updated', { blog });
+    logger.info('Blog deleted');
 
-    res.status(200).json({
-      blog,
-    });
+    res.sendStatus(204);
   } catch (error) {
     res.status(500).json({
       code: 'ServerError',
-      message: 'Internnal server error',
+      message: 'Internal server error',
       error: error,
     });
-    logger.error('Error during updating blog', error);
+    logger.error('Error during deleting blog', error);
   }
 };

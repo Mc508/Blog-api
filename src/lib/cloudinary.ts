@@ -34,3 +34,12 @@ export const uploadToCloudinary = (
       .end(buffer);
   });
 };
+
+export const deleteBanner=async(publicId : string)=>{
+  try {
+    const result = await cloudinary.uploader.destroy(publicId)
+    logger.info("Image deleted",result)
+  } catch (error) {
+    console.log(error);
+  }
+}

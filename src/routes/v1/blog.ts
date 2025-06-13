@@ -1,4 +1,5 @@
 import { createBlog } from '@/controllers/v1/blog/createBlog';
+import { deleteBlog } from '@/controllers/v1/blog/deleteBlog';
 import { getAllBlogs } from '@/controllers/v1/blog/getAllBlogs';
 import { getBlogBySlug } from '@/controllers/v1/blog/getBlogBySlug';
 import { getBlogsByUser } from '@/controllers/v1/blog/getBlogsByUser';
@@ -95,6 +96,15 @@ router.put(
   validationError,
   uploadBlogBanner('put'),
   updateBlog,
+);
+
+router.delete(
+  '/:blogId',
+  authenticate,
+  authorize(['admin']),
+  param('blogId').isMongoId().withMessage('Invalid Blog Id'),
+  validationError,
+  deleteBlog,
 );
 
 export default router;
