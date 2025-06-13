@@ -1,8 +1,9 @@
 import { time, timeStamp } from 'console';
 import { Router } from 'express';
 import authRoutes from './auth';
-import userRoutes from "./user";
-import blogRoutes from "./blog"
+import userRoutes from './user';
+import blogRoutes from './blog';
+import likeRoutes from './like';
 
 const router = Router();
 
@@ -16,7 +17,8 @@ router.get('/', (req, res) => {
 });
 
 router.use('/auth', authRoutes);
-router.use('/users',userRoutes)
-router.use('/blogs',blogRoutes)
-  
-export default router
+router.use('/users', userRoutes);
+router.use('/blogs', blogRoutes);
+router.use('/likes', likeRoutes);
+
+export default router;
