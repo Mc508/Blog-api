@@ -1,11 +1,13 @@
 import { createBlog } from '@/controllers/v1/blog/createBlog';
 import { getAllBlogs } from '@/controllers/v1/blog/getAllBlogs';
+import { getBlogBySlug } from '@/controllers/v1/blog/getBlogBySlug';
+import { getBlogsByUser } from '@/controllers/v1/blog/getBlogsByUser';
 import { authenticate } from '@/middlewares/authenticate';
 import authorize from '@/middlewares/authorize';
 import { uploadBlogBanner } from '@/middlewares/uploadBlogBanner';
 import validationError from '@/middlewares/validationError';
 import { Router } from 'express';
-import { body, query } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import multer from 'multer';
 
 const upload = multer();
@@ -47,6 +49,31 @@ router.get(
   validationError,
   getAllBlogs,
 );
+
+router.get(
+  '/user/:userId',
+  authenticate,
+  authorize(['admin','user']),
+  param('userId').isMongoId().withMessage('Invalid user ID'),
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 50 })
+    .withMessage('Limit must be between 1 to 50'),
+  query('offset')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Offset must be greater then 0'),
+  validationError,
+  getBlogsByUser,
+);
+
+router.get("/:slug",
+  authenticate,
+  authorize(['admin','user']),
+  param('slug').notEmpty().withMessage("Slug is required"),
+  validationError,
+  getBlogBySlug
+)
 
 
 export default router;
