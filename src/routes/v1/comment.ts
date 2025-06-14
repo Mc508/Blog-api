@@ -1,6 +1,6 @@
 import { commentBlog } from '@/controllers/v1/comment/commentBlog';
 import { deleteComment } from '@/controllers/v1/comment/deleteComment';
-import { getCommentByBlog } from '@/controllers/v1/comment/getcommentByBlog';
+import { getCommentByBlog } from '@/controllers/v1/comment/getCommentByBlog';
 import { authenticate } from '@/middlewares/authenticate';
 import authorize from '@/middlewares/authorize';
 import validationError from '@/middlewares/validationError';
